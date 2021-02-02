@@ -18,10 +18,30 @@ resource "docker_image" "imagen-ubuntu" {
 resource "docker_container" "contenedor-ubuntu" {
   name  = "mi_contenedor_ubuntu"
   image = docker_image.imagen-ubuntu.latest
-}
+  command = ["bash", "-c", "sleep 600"]
+
 
 # crear 2 volumenes dentro del contenedor
+#dynamic para declarar las variables que tenemos en la lista del fichero varaibles.tf
+ volumes{
+       host_path       = "/home/ubuntu/environment/cursoTerraform"
+    container_path  = "/cursoTerraform"
+ }
 
-resource "docker_volume" "shared_volume" {
-  name = "shared_volume"
+ volumes{
+    host_path       = "/home/ubuntu/environment/ivan"
+    container_path  =  "/ivan"
+ }
+    
+    
+#dynamic para declarar las variables que tenemos en la lista del fichero varaibles.tf
+ dynamic "volumes" {
+    for_each = var.volumenes
+    content {
+        #volume_name     = contains(volumes,         volumes.value["volume_name"]
+        host_path       = volumes.value["host_path"]
+        container_path  = volumes.value["container_path"]
+    }
+ }
+    
 }
